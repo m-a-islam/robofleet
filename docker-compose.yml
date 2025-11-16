@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  # --- Backend Service (Python/FastAPI) ---
+  backend:
+    build: ./backend  # Tells docker-compose where to find the Dockerfile (in ./backend)
+    ports:
+      - "8000:8000"  # Maps your computer's port 8000 to the container's port 8000
+    volumes:
+      # Mounts your local code into the container for live-reloading
+      # Remove this in production, but it's great for development
+      - ./backend:/app
+    environment:
+      # Define an environment variable for the frontend to use
+      # This is just an example; you can add database URLs, API keys, etc.
+      - ROBOT_STATUS_ENDPOINT=http://backend:8000/api/status
+
+  # --- Frontend Service (React/Nginx) ---
+  frontend:
+    build: ./frontend # Tells docker-compose where to find the Dockerfile (in ./frontend)
+    ports:
+      - "5173:80"     # Maps your computer's port 5173 to the container's port 80 (nginx)
+    # This 'depends_on' ensures the backend is started before the frontend
+    # Note: It doesn't mean the backend is *ready*, just started.
+    depends_on:
+      - backend
